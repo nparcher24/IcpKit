@@ -56,10 +56,20 @@ public struct ICPRequest {
     }
     
     private static func buildUrl(_ request: ICPRequestType, _ canister: ICPPrincipal, baseURL: URL?) -> URL {
-        let baseUrl = baseURL ?? URL(string: "https://icp-api.io/api/v2/canister")!
-        var url = baseUrl
-        url.append(path: canister.string)
-        url.append(path: ICPRequestTypeEncodable.from(request).rawValue)
-        return url
+        let baseUrl = baseURL ?? URL(string: "https://icp-api.io")!
+        var components = URLComponents(url: baseUrl, resolvingAgainstBaseURL: true)!
+        
+        components.path = "/api/v2/canister/\(canister.string)"
+        
+        switch request {
+        case .query:
+            components.path += "/query"
+        case .call:
+            components.path += "/call"
+        case .readState:
+            components.path += "/read_state"
+        }
+        
+        return components.url!
     }
 }

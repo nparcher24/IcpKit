@@ -223,10 +223,28 @@ public class ICPRequestClient {
     }
     
     private func fetchCbor(_ icpRequest: ICPRequest, canister: ICPPrincipal, sender: ICPPrincipal? = nil) async throws -> Data? {
-        let response = try await client.fetch(icpRequest.httpRequest)
+//        print("Fetching CBOR for canister: \(canister.string)")
+//        print("Request URL: \(icpRequest.httpRequest.url?.absoluteString ?? "nil")")
+//        print("Request method: \(icpRequest.httpRequest.method.rawValue)")
+//        print("Request headers: \(icpRequest.httpRequest.headers)")
+//        let body = icpRequest.httpRequest.body
+//        print("Request body length: \(body) bytes")
         
+        
+        
+        
+        let response = try await client.fetch(icpRequest.httpRequest)
+//        print("Response status code: \(response.statusCode.rawValue)")
+//        
+//        if let responseData = response.data, let responseString = String(data: responseData, encoding: .utf8) {
+////            print("Response body: \(responseString)")
+//        } else {
+//            print("Response body is nil or not UTF-8 encodable")
+//        }
+//        
         guard response.statusCode == .ok || response.statusCode == .accepted else {
             let errorString = String(data: response.data ?? Data(), encoding: .utf8)
+//            print("Error response: \(errorString ?? "nil")")
             if let error = response.error {
                 throw ICPRemoteClientError.httpError(error, errorString)
             }
