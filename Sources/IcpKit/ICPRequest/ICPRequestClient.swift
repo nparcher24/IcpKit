@@ -63,8 +63,11 @@ public enum ICPRequestCertification {
 /// The HttpClient that takes care of encoding and serialising all requests
 public class ICPRequestClient {
     private let client = SimpleHttpClient()
-    
-    public init() {}
+    private let baseURL: URL?
+
+    public init(baseURL: URL? = nil) {
+        self.baseURL = baseURL
+    }
     
     /// Makes a Query/Call Request to the given canister and returns the result.
     /// Queries do not affect the state of the blockchain and are generally fast.
@@ -100,7 +103,7 @@ public class ICPRequestClient {
     ///   - sender: The signer of the request. If not present, no signature will be attached to the request.
     /// - Returns: the requestId of the newly created request
     public func call(_ method: ICPMethod, effectiveCanister canister: ICPPrincipal, sender: ICPSigningPrincipal? = nil) async throws -> Data {
-        let icpRequest = try await ICPRequest(.call(method), canister: canister, sender: sender)
+        let icpRequest = try await ICPRequest(.call(method), canister: canister, sender: sender, baseURL: baseURL)
         _ = try await fetchCbor(icpRequest, canister: canister)
         return icpRequest.requestId
     }
@@ -133,7 +136,7 @@ public class ICPRequestClient {
     ///   - sender: The signer of the request. If not present, no signature will be attached to the request.
     /// - Returns: The response of the query
     public func query(_ method: ICPMethod, effectiveCanister canister: ICPPrincipal, sender: ICPSigningPrincipal? = nil) async throws -> CandidValue {
-        let icpRequest = try await ICPRequest(.query(method), canister: canister, sender: sender)
+        let icpRequest = try await ICPRequest(.query(method), canister: canister, sender: sender, baseURL: baseURL)
         guard let cborEncodedResponse = try await fetchCbor(icpRequest, canister: canister) else {
             throw ICPRemoteClientError.noResponseData
         }
@@ -148,7 +151,7 @@ public class ICPRequestClient {
     ///   - sender: The signer of the request. If not present, no signature will be attached to the request.
     /// - Returns: The ReadState response
     public func readState(paths: [ICPStateTreePath], effectiveCanister canister: ICPPrincipal, sender: ICPSigningPrincipal? = nil) async throws -> ICPReadStateResponse {
-        let icpRequest = try await ICPRequest(.readState(paths: paths), canister: canister, sender: sender)
+        let icpRequest = try await ICPRequest(.readState(paths: paths), canister: canister, sender: sender, baseURL: baseURL)
         guard let cborEncodedResponse = try await fetchCbor(icpRequest, canister: canister) else {
             throw ICPRemoteClientError.noResponseData
         }

@@ -1,3 +1,4 @@
+
 //
 //  ICPRequest.swift
 //
@@ -9,7 +10,7 @@ import BigInt
 import PotentCBOR
 import Candid
 
-private let canisterBaseUrl: URL = "https://icp-api.io/api/v2/canister"
+// private let canisterBaseUrl: URL = "https://icp-api.io/api/v2/canister"
 
 public struct ICPMethod {
     public let canister: ICPPrincipal
@@ -40,7 +41,7 @@ public struct ICPRequest {
     public let requestId: Data
     let httpRequest: HttpRequest
     
-    public init(_ request: ICPRequestType, canister: ICPPrincipal, sender: ICPSigningPrincipal? = nil) async throws {
+    public init(_ request: ICPRequestType, canister: ICPPrincipal, sender: ICPSigningPrincipal? = nil, baseURL: URL? = nil) async throws {
         let content = try ICPRequestBuilder.buildContent(request, sender: sender?.principal)
         requestId = try content.calculateRequestId()
         let envelope = try await ICPRequestBuilder.buildEnvelope(content, sender: sender)
@@ -48,14 +49,15 @@ public struct ICPRequest {
         
         httpRequest = HttpRequest {
             $0.method = .post
-            $0.url = Self.buildUrl(request, canister)
+            $0.url = Self.buildUrl(request, canister, baseURL: baseURL)
             $0.body = .data(rawBody, contentType: "application/cbor")
             $0.timeout = 120
         }
     }
     
-    private static func buildUrl(_ request: ICPRequestType, _ canister: ICPPrincipal) -> URL {
-        var url = canisterBaseUrl
+    private static func buildUrl(_ request: ICPRequestType, _ canister: ICPPrincipal, baseURL: URL?) -> URL {
+        let baseUrl = baseURL ?? URL(string: "https://icp-api.io/api/v2/canister")!
+        var url = baseUrl
         url.append(path: canister.string)
         url.append(path: ICPRequestTypeEncodable.from(request).rawValue)
         return url
