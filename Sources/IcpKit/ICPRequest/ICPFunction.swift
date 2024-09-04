@@ -7,6 +7,7 @@
 
 import Foundation
 import Candid
+import os
 
 public extension CandidFunctionProtocol {
     init(_ canister: ICPPrincipal, _ method: String) {
@@ -20,6 +21,7 @@ public class ICPFunction<Argument, Result, Query: StaticBool>: CandidFunctionPro
     public let canister: CandidPrincipal
     public let methodName: String
     public var query: Bool { Query.value }
+    
     
     public required init(_ canister: CandidPrincipal, _ method: String) {
         self.canister = canister
@@ -90,48 +92,57 @@ fileprivate extension CandidFunctionProtocol {
         }
     }
     
-    // TODO: Is this necessary? If yes, this should be injected at init
-    var splitArguments: Bool { false }
     func encodeArguments<T>(_ arg: T) throws -> [CandidValue] where T: Encodable {
-        guard splitArguments else {
+        print("ICPFunction: Encoding arguments of type: \(type(of: arg))")
+        if let tuple = arg as? CandidTuple2<String, String> {
+            print("ICPFunction: Encoding as CandidTuple2<String, String>")
+            return [
+                try CandidEncoder().encode(tuple._0),
+                try CandidEncoder().encode(tuple._1)
+            ]
+        } else if let tuple = arg as? CandidTuple2<Encodable, Encodable> {
+            print("ICPFunction: Encoding as CandidTuple2<Encodable, Encodable>")
+            return [
+                try CandidEncoder().encode(tuple._0),
+                try CandidEncoder().encode(tuple._1)
+            ]
+        } else if let tuple = arg as? CandidTuple3<Encodable, Encodable, Encodable> {
+            print("ICPFunction: Encoding as CandidTuple3")
+            return [
+                try CandidEncoder().encode(tuple._0),
+                try CandidEncoder().encode(tuple._1),
+                try CandidEncoder().encode(tuple._2)
+            ]
+        } else if let tuple = arg as? CandidTuple4<Encodable, Encodable, Encodable, Encodable> {
+            print("ICPFunction: Encoding as CandidTuple4")
+            return [
+                try CandidEncoder().encode(tuple._0),
+                try CandidEncoder().encode(tuple._1),
+                try CandidEncoder().encode(tuple._2),
+                try CandidEncoder().encode(tuple._3)
+            ]
+        } else if let tuple = arg as? CandidTuple5<Encodable, Encodable, Encodable, Encodable, Encodable> {
+            print("ICPFunction: Encoding as CandidTuple5")
+            return [
+                try CandidEncoder().encode(tuple._0),
+                try CandidEncoder().encode(tuple._1),
+                try CandidEncoder().encode(tuple._2),
+                try CandidEncoder().encode(tuple._3),
+                try CandidEncoder().encode(tuple._4)
+            ]
+        } else if let tuple = arg as? CandidTuple6<Encodable, Encodable, Encodable, Encodable, Encodable, Encodable> {
+            print("ICPFunction: Encoding as CandidTuple6")
+            return [
+                try CandidEncoder().encode(tuple._0),
+                try CandidEncoder().encode(tuple._1),
+                try CandidEncoder().encode(tuple._2),
+                try CandidEncoder().encode(tuple._3),
+                try CandidEncoder().encode(tuple._4),
+                try CandidEncoder().encode(tuple._5)
+            ]
+        } else {
+            print("ICPFunction: Encoding as single argument")
             return [try CandidEncoder().encode(arg)]
         }
-        if let tuple2 = arg as? CandidTuple2<Encodable, Encodable> {
-            return [
-                try CandidEncoder().encode(tuple2._0),
-                try CandidEncoder().encode(tuple2._1),
-            ]
-        } else if let tuple3 = arg as? CandidTuple3<Encodable, Encodable, Encodable> {
-            return [
-                try CandidEncoder().encode(tuple3._0),
-                try CandidEncoder().encode(tuple3._1),
-                try CandidEncoder().encode(tuple3._2),
-            ]
-        } else if let tuple4 = arg as? CandidTuple4<Encodable, Encodable, Encodable, Encodable> {
-            return [
-                try CandidEncoder().encode(tuple4._0),
-                try CandidEncoder().encode(tuple4._1),
-                try CandidEncoder().encode(tuple4._2),
-                try CandidEncoder().encode(tuple4._3),
-            ]
-        } else if let tuple5 = arg as? CandidTuple5<Encodable, Encodable, Encodable, Encodable, Encodable> {
-            return [
-                try CandidEncoder().encode(tuple5._0),
-                try CandidEncoder().encode(tuple5._1),
-                try CandidEncoder().encode(tuple5._2),
-                try CandidEncoder().encode(tuple5._3),
-                try CandidEncoder().encode(tuple5._4),
-            ]
-        } else if let tuple6 = arg as? CandidTuple6<Encodable, Encodable, Encodable, Encodable, Encodable, Encodable> {
-            return [
-                try CandidEncoder().encode(tuple6._0),
-                try CandidEncoder().encode(tuple6._1),
-                try CandidEncoder().encode(tuple6._2),
-                try CandidEncoder().encode(tuple6._3),
-                try CandidEncoder().encode(tuple6._4),
-                try CandidEncoder().encode(tuple6._5),
-            ]
-        }
-        return [try CandidEncoder().encode(arg)]
     }
 }

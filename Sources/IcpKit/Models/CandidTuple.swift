@@ -117,6 +117,8 @@ public struct CandidTuple6<T0, T1, T2, T3, T4, T5> {
     }
 }
 
+
+
 extension CandidTuple2: Encodable where T0: Encodable, T1: Encodable {}
 extension CandidTuple2: Decodable where T0: Decodable, T1: Decodable {}
 extension CandidTuple3: Encodable where T0: Encodable, T1: Encodable, T2: Encodable {}
@@ -127,4 +129,3 @@ extension CandidTuple5: Encodable where T0: Encodable, T1: Encodable, T2: Encoda
 extension CandidTuple5: Decodable where T0: Decodable, T1: Decodable, T2: Decodable, T3: Decodable, T4: Decodable {}
 extension CandidTuple6: Encodable where T0: Encodable, T1: Encodable, T2: Encodable, T3: Encodable, T4: Encodable, T5: Encodable {}
 extension CandidTuple6: Decodable where T0: Decodable, T1: Decodable, T2: Decodable, T3: Decodable, T4: Decodable, T5: Decodable {}
-

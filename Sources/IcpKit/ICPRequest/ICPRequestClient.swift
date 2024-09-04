@@ -121,7 +121,9 @@ public class ICPRequestClient {
                      sender: ICPSigningPrincipal? = nil,
                      for duration: Duration = .seconds(120),
                      repeatEvery waitDuration: Duration = .seconds(2)) async throws -> CandidValue {
+        print("ICPRequestClient: Executing callAndPoll for method: \(method.methodName), canister: \(canister.string)")
         let requestId = try await call(method, effectiveCanister: canister, sender: sender)
+        print("ICPRequestClient: Call executed, requestId: \(requestId.hex)")
         return try await pollRequestStatus(requestId: requestId,
                                            effectiveCanister: canister,
                                            sender: sender,
@@ -136,11 +138,16 @@ public class ICPRequestClient {
     ///   - sender: The signer of the request. If not present, no signature will be attached to the request.
     /// - Returns: The response of the query
     public func query(_ method: ICPMethod, effectiveCanister canister: ICPPrincipal, sender: ICPSigningPrincipal? = nil) async throws -> CandidValue {
+        print("ICPRequestClient: Executing query for method: \(method.methodName), canister: \(canister.string)")
         let icpRequest = try await ICPRequest(.query(method), canister: canister, sender: sender, baseURL: baseURL)
+        print("ICPRequestClient: ICPRequest created for query")
         guard let cborEncodedResponse = try await fetchCbor(icpRequest, canister: canister) else {
+            print("ICPRequestClient: No response data received from query")
             throw ICPRemoteClientError.noResponseData
         }
+        print("ICPRequestClient: CBOR response received, length: \(cborEncodedResponse.count)")
         let parsedResponse = try parseQueryResponse(cborEncodedResponse)
+        print("ICPRequestClient: Query response parsed successfully")
         return parsedResponse
     }
     
